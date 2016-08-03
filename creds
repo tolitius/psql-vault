@@ -1,0 +1,4 @@
+{"root-user": "postgres",
+ "root-pass": "CHANGE-ME-root-pass",
+ "ghost-user": "ghost",
+ "ghost-pass": "CHANGE-ME-TOO-ghost-pass"}
