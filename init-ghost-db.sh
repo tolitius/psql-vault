@@ -17,7 +17,7 @@ set -e
 : ${VAULT_PORT?"env variable VAULT_PORT needs to be set"}
 : ${VAULT_TOKEN?"env variable VAULT_TOKEN needs to be set"}
 
-echo ">>> $VAULT_HOST:$VAULT_PORT with token: $VAULT_TOKEN"
+# echo ">>> $VAULT_HOST:$VAULT_PORT with token: $VAULT_TOKEN"
 
 ##  for this function to work: "curl" and "jq" should be installed
 function readCreds {
@@ -42,7 +42,7 @@ function readCreds {
 
 creds=$(readCreds $VAULT_HOST $VAULT_PORT $VAULT_TOKEN)
 
-echo creds: $creds
+# echo creds: $creds
 
 ROOT_USER=$(echo $creds | jq -r '.["root-user"]')
 ROOT_PASSWORD=$(echo $creds | jq -r '.["root-pass"]')
@@ -52,8 +52,8 @@ GHOST_PASSWORD=$(echo $creds | jq -r '.["ghost-pass"]')
 
 GHOST_DB_NAME=ghost
 
-echo "root: $ROOT_USER, $ROOT_PASSWORD"
-echo "ghost: $GHOST_USER, $GHOST_PASSWORD"
+# echo "root: $ROOT_USER, $ROOT_PASSWORD"
+# echo "ghost: $GHOST_USER, $GHOST_PASSWORD"
 
 mv /pg_hba.conf $PGDATA/
 chown -R $ROOT_USER:$ROOT_USER $PGDATA
