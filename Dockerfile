@@ -8,7 +8,7 @@ ENV VAULT_PORT 8200
 # VAULT_TOKEN
 
 COPY pg_hba.conf /
-COPY init-ghost-db.sh /docker-entrypoint-initdb.d/init-ghost-db.sh
+COPY provision-users-and-dbs.sh /docker-entrypoint-initdb.d/provision-users-and-dbs.sh
 
 RUN apt-get update
 RUN apt-get -y upgrade
