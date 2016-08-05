@@ -1,4 +1,14 @@
-{"root-user": "postgres",
- "root-pass": "CHANGE-ME-root-pass",
- "ghost-user": "ghost",
- "ghost-pass": "CHANGE-ME-TOO-ghost-pass"}
+{"root": {"username": "postgres",
+          "password": "CHANGE-ME-root-pass"},
+ "users": [{"username": "ghost",
+            "password": "CHANGE-ME-TOO-ghost-pass"},
+           {"username": "producer",
+            "password": "CHANGE-ME-TOO-producer-pass"},
+           {"username": "artist",
+            "password": "CHANGE-ME-TOO-artist-pass"},
+           {"username": "guest",
+            "password": "CHANGE-ME-TOO-guest-pass"}],
+ "dbs": [{"name": "ghost_blog",
+          "users": ["ghost"]},
+         {"name": "music_library",
+          "users": ["producer", "artist"]}]}

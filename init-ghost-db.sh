@@ -1,17 +1,5 @@
 #!/bin/bash
-set -e
-
-# if [ "$#" -ne 3 ]; then
-#     echo "usage: $0 [vault's host] [vault's port] [vault token]"
-#     exit 1
-# fi
-# 
-# VAULT_HOST=$1
-# VAULT_PORT=$2
-# VAULT_TOKEN=$3
-
-# ^^^ these 3 variables would need to be set as env vars rather than args for this script
-#     since this script is most likely to be called by postgres container with no args
+# set -e
 
 : ${VAULT_HOST?"env variable VAULT_HOST needs to be set"}
 : ${VAULT_PORT?"env variable VAULT_PORT needs to be set"}
@@ -41,27 +29,71 @@ function readCreds {
     fi
 }
 
+function securingRoot {
+    psql -v ON_ERROR_STOP=1 -h localhost --username "$root_user" <<-EOSQL
+        ALTER USER $root_user WITH ENCRYPTED PASSWORD '$root_password';
+EOSQL
+}
+
+function createUser { 
+
+    local u=$(jq -r .username <<< $1)
+    local p=$(jq -r .password <<< $1)
+
+    echo "creating user: $u"
+
+    psql -v ON_ERROR_STOP=1 -h localhost --username "$root_user" <<-EOSQL
+        CREATE USER $u WITH ENCRYPTED PASSWORD '$p';
+EOSQL
+}
+
+function createDatabase {
+
+    local db=$(jq -r .name <<< $1)
+    
+    echo "creating a database: $db"
+
+    psql -v ON_ERROR_STOP=1 -h localhost --username "$root_user" <<-EOSQL
+        CREATE DATABASE $db;
+EOSQL
+}
+
+function provisionDatabase {
+
+    createDatabase $1
+
+    local db=$(jq -r .name <<< $1)
+
+    jq '.users[]' <<< $1 | while read u; do
+        echo "setting up a user: $u"
+
+        psql -v ON_ERROR_STOP=1 -h localhost --username "$root_user" <<-EOSQL
+            GRANT ALL PRIVILEGES ON DATABASE $db TO $u;
+EOSQL
+    done
+}
+
 creds=$(readCreds $VAULT_HOST $VAULT_PORT $VAULT_TOKEN)
+# creds=`cat ./creds`
 
 # echo creds: $creds
 
-ROOT_USER=$(echo $creds | jq -r '.["root-user"]')
-ROOT_PASSWORD=$(echo $creds | jq -r '.["root-pass"]')
+root_user=$(jq -r '.root.username' <<< $creds)
+root_password=$(jq -r '.root.password' <<< $creds)
 
-GHOST_USER=$(echo $creds | jq -r '.["ghost-user"]')
-GHOST_PASSWORD=$(echo $creds | jq -r '.["ghost-pass"]')
+## creating users
+jq -c '.users[]' <<< $creds | while read u; do
+    createUser $u
+done
 
-GHOST_DB_NAME=ghost
+# ## creating and provisioning databases
+jq -c '.dbs[]' <<< $creds | while read d; do
+   provisionDatabase $d 
+done
 
-# echo "root: $ROOT_USER, $ROOT_PASSWORD"
-# echo "ghost: $GHOST_USER, $GHOST_PASSWORD"
+securingRoot
 
-mv /pg_hba.conf $PGDATA/
-chown -R $ROOT_USER:$ROOT_USER $PGDATA
-
-psql -v ON_ERROR_STOP=1 --username "$ROOT_USER" <<-EOSQL
-    ALTER USER $ROOT_USER WITH ENCRYPTED PASSWORD '$ROOT_PASSWORD';
-    CREATE USER $GHOST_USER WITH ENCRYPTED PASSWORD '$GHOST_PASSWORD';
-    CREATE DATABASE $GHOST_DB_NAME;
-    GRANT ALL PRIVILEGES ON DATABASE $GHOST_DB_NAME TO $GHOST_USER;
-EOSQL
+if [[ -n $PG_HBA ]]; then
+    mv $PG_HBA $PGDATA/
+    chown -R $root_user:$root_user $PGDATA
+fi
