@@ -36,7 +36,8 @@ function readCreds {
         fi
 
     else
-        echo "need all 3 arguments: [vault's host] [vault's port] [vault token], got: '$@'"
+        echo "need all 3 arguments: [vault's host] [vault's port] [vault token], got: '$@'" >&2
+        return 1
     fi
 }
 
