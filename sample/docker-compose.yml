@@ -1,0 +1,13 @@
+version: '2'
+services:
+  db:
+    image: tolitius/psql-vault:latest
+    volumes:
+      - "${PG_HBA}/pg_hba.conf:/pg_hba.conf"
+      - "${PG_HOST_DATA}:${PGDATA}"
+    ports:
+      - "${PG_HOST_PORT}:5432"
+    restart: always
+    environment:
+      VAULT_HOST: ${VAULT_HOST}
+      VAULT_TOKEN: ${ACCESS_TOKEN}

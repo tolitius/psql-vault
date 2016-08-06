@@ -93,7 +93,8 @@ done
 
 securingRoot
 
-if [[ -n $PG_HBA ]]; then
-    mv $PG_HBA $PGDATA/
+if [[ -e /pg_hba.conf ]]; then
+    echo "applying a custom host based access (pg_hba)"
+    cp /pg_hba.conf $PGDATA/
     chown -R $root_user:$root_user $PGDATA
 fi

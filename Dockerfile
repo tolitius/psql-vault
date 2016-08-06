@@ -7,7 +7,6 @@ ENV VAULT_PORT 8200
 # VAULT_HOST
 # VAULT_TOKEN
 
-COPY pg_hba.conf /
 COPY provision-users-and-dbs.sh /docker-entrypoint-initdb.d/provision-users-and-dbs.sh
 
 RUN apt-get update
