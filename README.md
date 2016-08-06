@@ -9,12 +9,12 @@ with getting its creds from [Vault](https://www.vaultproject.io/).
 ## Why bother?
 
 Most of the official images, including [Postgres](https://hub.docker.com/_/postgres/), recommend passing credentials to a docker image via
-environment variables. This is a _***very insecure way**_ to do business, since all child processes can see these variables in clear text.
+environment variables. This is a _**very insecure way**_ to do business, since all the child processes can see these variables in clear text.
 Moreover these variables would show up in `docker inspect`, OS logs, and many more places.
 
 Keeping DB, and other, credentials in Vault allows for a lot better security and safe ways of storing and obtaining these credentials whenever they are needed.
 
-`psql-vault` does that and a bit more: it would  _optionally_ provision dbs, users and a custom Postgres' host based authentication.
+`psql-vault` does that and a bit more: it would  _optionally_ provision dbs, users and a custom Postgres' host based authentication config.
 
 ## Use it
 
@@ -27,7 +27,7 @@ It can be as minimal as:
           "password": "CHANGE-ME-root-pass"}}
 ```
 
-to something a lot more involved:
+or something a lot more involved:
 
 ```json
 {"root": {"username": "postgres",
@@ -52,7 +52,7 @@ to something a lot more involved:
 
 Postgres keeps its "gates" in [`pg_hba.conf`](https://www.postgresql.org/docs/9.5/static/auth-pg-hba-conf.html).
 
-When running `psql-vault` image, you can provide your own `pg_hba.conf` setting `PG_HBA` env variable which is a path to a custom `pg_hba.conf`.
+When running `psql-vault` image, you can provide your own `pg_hba.conf` setting the `PG_HBA` env variable which is a path to a custom `pg_hba.conf`.
 
 > TODO: documentation
 
@@ -88,12 +88,16 @@ export VAULT_ADDR='http://127.0.0.1:8200'
 
 In production this would (already be there or) be done on a _different_ machine (or potentially a Vault cluster) and with more unseal keys, etc..
 
-### One step config
+## Config and Run a sample
 
 ```bash
 git clone https://github.com/tolitius/psql-vault
 cd sample
 ```
+
+all the below steps are from under this `./sample` dir.
+
+## One step config
 
 Open `.env` file, and since Vault is running on the _same host_ in this case, set `VAULT_HOST` to the _host IP_.
 
