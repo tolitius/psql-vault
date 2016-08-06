@@ -3,7 +3,7 @@ _this repo is `in progress`.. once this is close to be alpha, the docs will foll
 
 # What is it?
 
-This is a docker image that combines an official [PostreSQL](https://www.postgresql.org/) docker image
+This is a [docker image](https://hub.docker.com/r/tolitius/psql-vault/) that combines an official [PostreSQL](https://www.postgresql.org/) docker image
 with getting its creds from [Vault](https://www.vaultproject.io/).
 
 ## Why bother?
